@@ -1,0 +1,26 @@
+<div>
+    <div class="header">
+        <div class="appTitle center">新建运单</div>
+        <img src="images/set.png" class="setIco" id="setIco"/>
+    </div>
+    <div class="inputTag">
+        <div></div>
+        <div class="spacing">
+        <input type="text" maxlength="33" id="addInput" placeholder="运单号：3763434222" class="inputText addInput"/>
+        </div>
+        <div class="companyContainer spacing">
+            <ul>
+                <%for(var i=0;i<md['data'].length;i++){%>
+                <li nu="<%=md['data'][i][0]%>" class="company"><%=md['data'][i][2]%></li>
+                <%}%>
+            </ul>
+        </div>
+        <div class="spacing">
+            <button class="m-button orangeButton" id="search">查 询</button>
+        </div>
+    </div>
+
+    <div style="height: 5px;"></div>
+
+    <a href="#" class="dialogClose J-dialogClose"></a>
+</div>
