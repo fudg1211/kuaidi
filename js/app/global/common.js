@@ -124,48 +124,23 @@ define(['configs', 'storage',  'hack', 'regular'], function (configs, storage, h
 			return this.dialog(config)
 		},
 
-		showLoading: function () {
-			var config = {
-				url: 'loading',
-				className: 'loadingDialog'
-			};
-
-			dialog(config);
-		},
-
-		removeLoading: function () {
-			$('.loadingDialog').remove();
+		loading: {
+			show: function () {
+				var str = '<div class="box boxCenter"></div>';
+				dialog({loadingContent:str,className:'loading'});
+			},
+			hide: function () {
+				$('.loading').remove();
+			}
 		},
 
 		ajax: function (configs) {
 			var self = this;
 
 			if (!configs.hideLoading) {
-				this.showLoading();
+				this.loading.show();
 			}
 
-			var checkStatus = function (result) {
-				if(configs.checkStatus){
-					return true;
-				}
-
-				var status_code = 0 , status_desc;
-				if (result.status && result.status.code) {
-					status_code = result.status.code;
-					status_desc = result.status.description;
-				}
-
-				if (status_code) {
-					if (status_desc) {
-						alert('网络超时');
-						initData.onDataError = true;
-					}
-					return false;
-				} else {
-					initData.onDataError = false;
-					return true;
-				}
-			};
 
 			var a = {
 				type: 'POST',
@@ -180,17 +155,12 @@ define(['configs', 'storage',  'hack', 'regular'], function (configs, storage, h
 					initData.onDataError=true;
 				},
 				complete: function (result) {
-					self.removeLoading();
+					self.loading.hide();
 				}
 			};
 
 
 			this.mix(a, configs);
-			a.success = function (result) {
-				if (checkStatus(result)) {
-					configs.success(result);
-				}
-			};
 
 			$.ajax(a);
 		},

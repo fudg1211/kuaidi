@@ -5,10 +5,10 @@
  * Time: AM10:48
  * To change this template use File | Settings | File Templates.
  */
-define(['common', './global/data'], function (com, data) {
+define(['common', './global/data','./localData'], function (com, data, local) {
 	var Index = FishMVC.View.extend({
 		init: function () {
-
+			this.autoRefreshData();
 		},
 
 		elements: {
@@ -20,7 +20,13 @@ define(['common', './global/data'], function (com, data) {
 			'.company':'company_rel',
 			'#companySelected':'companySelected_rel',
 			'#search':'search_rel',
-			'#addInput':'addInput_rel'
+			'#addInput':'addInput_rel',
+			'.orderInfo':'orderInfo_rel',
+			'.showOrderDetail':'showOrderDetail_rel',
+			'.delNu':'delNu_rel',
+			'.orderDescDetailContainer':'orderDescDetailContainer_rel',
+			'#orderContainer':'orderContainer_rel',
+			'.refreshNu':'refreshNu_rel'
 		},
 
 		events: {
@@ -29,13 +35,29 @@ define(['common', './global/data'], function (com, data) {
 			'click selecteCompanys_rel': 'selecteCompanys',
 			'click saveSetCompanys_rel': 'saveSetCompanys',
 			'click company_rel':'selectCompany',
-			'click search_rel':'search'
+			'click search_rel':'search',
+			'click orderInfo_rel':'showOrderInfo',
+			'click delNu_rel':'delNu',
+			'click orderDescDetailContainer_rel':'orderDescDetailContainer',
+			'click refreshNu_rel':'refreshNu'
+		},
+
+		autoRefreshData:function(){
+			var localData = local.getAll();
+			for(var i=0;i<localData.length;i++){
+				if(!parseInt(localData[i]['data']['ischeck']) && (localData[i]['time']+(3600*15))>new Date().getTime()){
+					this.searchQuery(localData[i]['data']['com'],localData[i]['id']);
+				}else{
+					this.searchBack(localData[i]['data']);
+				}
+			}
 		},
 
 		addNu: function () {
 			var md = com.clon(data.getGuoneiCompany());
 			var localData = com.storage.local.get('localCompanys');
 			var result = [];
+			var lastNuAndCompany = JSON.parse(com.storage.local.get('lastNuAndCompany')) || ['',false];
 
 
 			if (localData) {
@@ -51,17 +73,27 @@ define(['common', './global/data'], function (com, data) {
 				}
 			}
 
+			for(i=0;i<result.length;i++){
+				if(result[i][1]===lastNuAndCompany[1]){
+					result[i][5]='companySelected';
+				}
+			}
+
+
+
 			var config = {
 				url: 'tpl/addNu',
 				className: 'addNu',
 				funs: [function () {
 
 				}],
-				data:result
+				data:result,
+				last:lastNuAndCompany
 			};
 
 
 			this._addNuPannel = com.dialog(config);
+
 		},
 
 		getCompanyById: function (id) {
@@ -80,7 +112,26 @@ define(['common', './global/data'], function (com, data) {
 			return result;
 		},
 
-		setCompany: function () {
+
+		getCompanyByEnName:function(name){
+			var md = data.getGuoneiCompany(), result;
+			for (var i = 0; i < md.length; i++) {
+				if (md[i][1] === name) {
+					result = md[i];
+					break
+				}
+			}
+
+			if (result) {
+				result = com.clon(result);
+			}
+
+			return result;
+		},
+
+		setCompany: function (obj) {
+			$(obj).removeClass('setIco_tip');
+
 			var md = com.clon(data.getGuoneiCompany());
 			var localData = com.storage.local.get('localCompanys');
 
@@ -132,6 +183,7 @@ define(['common', './global/data'], function (com, data) {
 
 			if (!result.length) {
 				com.alert({msg: '最少选择一个公司'});
+				return false;
 			}
 
 			com.storage.local.set('localCompanys', JSON.stringify(result));
@@ -154,22 +206,140 @@ define(['common', './global/data'], function (com, data) {
 		search:function(){
 			var obj = this['companySelected_rel'](),
 				objA = this['addInput_rel'](),
-				nu = obj.attr('nu'),
-				val = objA.val();
+				companyId = obj.attr('companyId'),
+				self = this,
+				companyName,
+				nu = objA.val();
 
 
-			if(!val){
+			if(!nu){
 				objA.attr('placeholder','请输入运单号').focus();
 				return false;
 			}
 
-			if(!nu){
+			if(!companyId){
 				com.alert({msg:'请选择快递公司'});
 			}
 
-			var nu = this.getCompanyById(nu);
+			var company = this.getCompanyById(companyId);
 
-			data.search(nu,val);
+			if(company && company.length){
+				companyName = company[1];
+			}
+
+			if(local.checkByIdAndCom(nu,companyName)){
+				com.alert({msg:'已经有该运单'});
+				return;
+			}
+
+			this.searchQuery(companyName,nu);
+
+			com.storage.local.set('lastNuAndCompany',JSON.stringify([nu,companyName]));
+		},
+
+		searchQuery:function(companyName,nu,isRefresh){
+			var self = this;
+			data.search(companyName,nu,function(result){
+				self.searchBack(result,isRefresh);
+
+				if(self._addNuPannel){
+					self._addNuPannel.remove();
+				}
+			});
+		},
+
+		searchBack:function(result,isRefresh){
+
+			if(result['status']===403){
+				com.alert(result['message']);
+				return false;
+			}
+
+
+			if(result['data'] && result['data'].length){
+
+				result['comDetail'] = this.getCompanyByEnName(result['com']);
+				var html = com.getRender('tpl/nuList',result);
+
+				if(isRefresh){
+					this._refreshNuEl.html($(html).children());
+				}else{
+					this['orderContainer_rel']().append(html);
+				}
+
+				if(local.getById(result['nu'])){
+					local.updateById(result['nu'],{id:result['nu'],data:result,time:new Date().getTime()});
+				}else{
+					local.add({id:result['nu'],data:result,time:new Date().getTime()});
+				}
+			}
+		},
+
+		showOrderInfo:function(obj){
+
+			var self = this;
+			setTimeout(function(){
+				if(self._delNu || self._orderDescDetailContainer || self._refreshNu){
+					self._delNu=false;
+					self._refreshNu=false;
+					self._orderDescDetailContainer = false;
+					return false;
+				}
+
+				obj = $(obj);
+				var a = obj.hasClass('showOrderDetail');
+
+				self['showOrderDetail_rel']().removeClass('showOrderDetail');
+				if(!a){
+					obj.addClass('showOrderDetail');
+				}
+			},10);
+		},
+
+		delNu:function(obj){
+			var self = this;
+			this._delNu = true;
+			var config={
+				msg:'确定要删除吗？',
+				buttons: [['确定','J-dialogClose'],['取消','J-dialogClose']],
+				funs:[function(){
+					self.delSubmit(obj);
+				}]
+			};
+			com.dialog(config);
+
+			return false;
+		},
+
+		delSubmit:function(obj){
+			obj = $(obj).parent();
+			var nu = obj.attr('nu');
+			if(local.delById(nu)){
+				obj.remove();
+			}
+		},
+
+		refreshNu:function(obj){
+			this._refreshNu = true;
+
+			obj = $(obj).parent();
+			var	nu = obj.attr('nu');
+
+			var localData = local.getById(nu),
+				ischeck = localData['data']['ischeck'],
+				companyName = localData['data']['com'];
+
+			if(parseInt(ischeck)){
+				return false;
+			}
+
+			this._refreshNuEl = obj;
+			this.searchQuery(companyName,nu,1);
+		},
+
+		orderDescDetailContainer:function(){
+			this._orderDescDetailContainer = true;
+			return false;
 		}
 
 

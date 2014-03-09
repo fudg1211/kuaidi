@@ -29,11 +29,12 @@
 		contentEl.className = 'dialogInner';
 		contentEl.innerHTML = content;
 
+
 		dialogEl.appendChild(contentEl);
 		coverEl.appendChild(dialogEl);
 
-		document.body.appendChild(coverEl);
-		document.body.appendChild(tokenEl);
+		$('body').append(coverEl).append(tokenEl);
+
 		coverEl.style['visibility'] = 'hidden';
 
 		var scrollTop = document.body.scrollTop,

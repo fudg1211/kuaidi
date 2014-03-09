@@ -17,7 +17,7 @@ body {
 	background-color: #fff;
 	font-family: "Microsoft YaHei";
 	color: #505050;
-	font-size: 13px;
+	font-size: 16px;
 }
 
 a {
@@ -77,7 +77,6 @@ a {
 	margin: auto;
 	box-sizing: border-box;
 	width: 360px;
-	min-height: 300px;
 }
 
 .inputText {

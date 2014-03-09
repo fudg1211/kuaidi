@@ -50,7 +50,7 @@
 	cursor: pointer;
 	vertical-align: middle;
 	font-size: 20px;
-	padding: 10px 20px;
+	padding: 5px 10px;
 	border: 0;
 }
 
@@ -71,4 +71,12 @@
 
 .dialog .tipImg {
 	margin-top: -5px;
+}
+
+.loading .dialog{
+	display: none;
+}
+
+.loading{
+	background: url(../images/loading.gif)  no-repeat center center rgba(0,0,0,0.1);
 }

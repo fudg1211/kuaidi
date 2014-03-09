@@ -6,12 +6,21 @@
     <div class="inputTag">
         <div></div>
         <div class="spacing">
-        <input type="text" maxlength="33" id="addInput" placeholder="运单号：3763434222" class="inputText addInput"/>
+        <input type="text" maxlength="33" id="addInput" value="<%=md['last'][0]%>" placeholder="运单号：3763434222" class="inputText addInput"/>
         </div>
         <div class="companyContainer spacing">
+
+
+            <%if(!md['data'].length){%>
+                <script type="text/javascript">
+                    $('#setIco').addClass('setIco_tip');
+                </script>
+                <div class="noSelectCompanys">请先点击右上角设置按钮设置常用快递公司</div>
+            <%}%>
+
             <ul>
                 <%for(var i=0;i<md['data'].length;i++){%>
-                <li nu="<%=md['data'][i][0]%>" class="company"><%=md['data'][i][2]%></li>
+                <li companyId="<%=md['data'][i][0]%>" class="company <%=md['data'][i][5]%>" <%if (md['data'][i][5]){%> id="companySelected" <%}%>><%=md['data'][i][2]%></li>
                 <%}%>
             </ul>
         </div>

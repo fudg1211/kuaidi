@@ -356,7 +356,7 @@
 				var tempethod = this.proxy(this[methodName]);
 				var method = (function(tempethod){
 					return function(event){
-						tempethod(this,event);
+						return tempethod(this,event);
 					};
 				}(tempethod));
 

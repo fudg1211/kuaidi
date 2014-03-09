@@ -34,13 +34,15 @@ define(function () {
 			]
 		},
 
-		search:function(type,id){
+		search:function(type,id,callback){
 			var url ='http://www.kuaidi100.com/query?type='+type+'&postid='+id.toString();
-			$.ajax({
+			com.ajax({
 				type:'get',
 				url:url,
 				success:function(result){
-					console.log(result);
+					if(result && callback){
+						callback(result);
+					}
 				}
 			})
 		}

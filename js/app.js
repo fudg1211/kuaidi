@@ -1,22 +1,22 @@
 var initData = {
-	dir:'/js/'
+	dir:'/chrome/kuaidi/js/'
 };
 
 requirejs.config({
 	//By default load any module IDs from js/lib
 	baseUrl: 'js',
 	paths:{
-		'common':initData.dir+'app/global/common',
-		'configs':initData.dir+'app/global/configs',
-		'storage':initData.dir+'app/global/storage',
-		'hack':initData.dir+'app/global/hack',
-		'regular':initData.dir+'app/global/regular'
+		'common':'app/global/common',
+		'configs':'app/global/configs',
+		'storage':'app/global/storage',
+		'hack':'app/global/hack',
+		'regular':'app/global/regular'
 	},
 	shim: {
 		'common': {
 			deps: ['./lib/Fish', './lib/ejs_production', './lib/json2', './lib/dialog']
 		}
-	}, urlArgs: 'v=' + (new Date()).getTime()
+	}, urlArgs: 'v=123'
 });
 
 // Start the main app logic.
