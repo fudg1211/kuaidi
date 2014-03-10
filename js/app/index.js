@@ -44,12 +44,14 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 
 		autoRefreshData:function(){
 			var localData = local.getAll();
+
 			for(var i=0;i<localData.length;i++){
-				if(!parseInt(localData[i]['data']['ischeck']) && (localData[i]['time']+(3600*15))>new Date().getTime()){
-					this.searchQuery(localData[i]['data']['com'],localData[i]['id']);
-				}else{
-					this.searchBack(localData[i]['data']);
-				}
+				this.searchBack(localData[i]['data']);
+			}
+
+			var refreseNuEL = this['refreshNu_rel']();
+			for(i=0;i<refreseNuEL.length;i++){
+				refreseNuEL.eq(i).trigger('click');
 			}
 		},
 
@@ -237,10 +239,10 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 			com.storage.local.set('lastNuAndCompany',JSON.stringify([nu,companyName]));
 		},
 
-		searchQuery:function(companyName,nu,isRefresh){
+		searchQuery:function(companyName,nu,refreshEL){
 			var self = this;
 			data.search(companyName,nu,function(result){
-				self.searchBack(result,isRefresh);
+				self.searchBack(result,refreshEL);
 
 				if(self._addNuPannel){
 					self._addNuPannel.remove();
@@ -248,7 +250,7 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 			});
 		},
 
-		searchBack:function(result,isRefresh){
+		searchBack:function(result,refreshEL){
 
 			if(result['status']===403){
 				com.alert(result['message']);
@@ -261,16 +263,18 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 				result['comDetail'] = this.getCompanyByEnName(result['com']);
 				var html = com.getRender('tpl/nuList',result);
 
-				if(isRefresh){
-					this._refreshNuEl.html($(html).children());
+				if(refreshEL){
+					refreshEL.html($(html).children());
 				}else{
 					this['orderContainer_rel']().append(html);
 				}
 
+				var time = new Date().getTime();
+
 				if(local.getById(result['nu'])){
-					local.updateById(result['nu'],{id:result['nu'],data:result,time:new Date().getTime()});
+					local.updateById(result['nu'],{id:result['nu'],data:result,time:time});
 				}else{
-					local.add({id:result['nu'],data:result,time:new Date().getTime()});
+					local.add({id:result['nu'],data:result,time:time,createTime:time});
 				}
 			}
 		},
@@ -280,9 +284,11 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 			var self = this;
 			setTimeout(function(){
 				if(self._delNu || self._orderDescDetailContainer || self._refreshNu){
-					self._delNu=false;
-					self._refreshNu=false;
-					self._orderDescDetailContainer = false;
+					setTimeout(function(){
+						self._delNu=false;
+						self._refreshNu=false;
+						self._orderDescDetailContainer = false;
+					},100);
 					return false;
 				}
 
@@ -320,6 +326,7 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 		},
 
 		refreshNu:function(obj){
+			console.log(obj);
 			this._refreshNu = true;
 
 			obj = $(obj).parent();
@@ -331,10 +338,10 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 
 			if(parseInt(ischeck)){
 				return false;
+			}else{
+				this.searchQuery(companyName,nu,obj);
 			}
 
-			this._refreshNuEl = obj;
-			this.searchQuery(companyName,nu,1);
 		},
 
 		orderDescDetailContainer:function(){

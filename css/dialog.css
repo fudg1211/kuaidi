@@ -9,10 +9,10 @@
 }
 
 .dialog{
-	width: 330px;
+	width: 300px;
 	position: absolute;
 	left: 50%;
-	margin-left: -165px;
+	margin-left: -150px;
 	font-size: 18px;
 	background: rgba(0,0,0,0.8);
 	border-radius: 3px;

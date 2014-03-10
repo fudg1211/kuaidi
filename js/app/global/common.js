@@ -126,8 +126,7 @@ define(['configs', 'storage',  'hack', 'regular'], function (configs, storage, h
 
 		loading: {
 			show: function () {
-				var str = '<div class="box boxCenter"></div>';
-				dialog({loadingContent:str,className:'loading'});
+				com.dialog({className:'loading'});
 			},
 			hide: function () {
 				$('.loading').remove();
@@ -155,7 +154,9 @@ define(['configs', 'storage',  'hack', 'regular'], function (configs, storage, h
 					initData.onDataError=true;
 				},
 				complete: function (result) {
-					self.loading.hide();
+					setTimeout(function(){
+						self.loading.hide();
+					},100)
 				}
 			};
 
