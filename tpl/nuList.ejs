@@ -1,6 +1,9 @@
-<li nu="<%=md['nu']%>" class="orderInfo">
+<li id="nu_<%=md['nu']%>_<%=md['com']%>" nu="<%=md['nu']%>" class="orderInfo" >
     <div>
-        <span class="orderNu">[<%=md['comDetail'][2]%>] 单号：<span style="color: red;"><%=md['nu']%></span></span>
+        <span class="orderNu">[<%=md['comDetail'][2]%>] 单号：<span style="color: red;"><%=md['nu']%></span>
+            <%if(!parseInt(md['ischeck'])){%>
+            <%}%>
+        </span>
     </div>
 
     <div style="line-height: 22px;margin-top: 5px;">
@@ -19,6 +22,14 @@
         </div>
     </div>
 
+    <%if(!parseInt(md['ischeck'])){%>
+        <div class="lastRefreshTime">上次更新时间：<%=md['timeStr']%></div>
+    <%}%>
+
     <img src="images/del.png" class="delNu"/>
+    <%if(!parseInt(md['ischeck'])){%>
     <img src="images/refresh.png" class="refreshNu"/>
+    <%}else{%>
+    <img src="images/end.png" class="endIco"/>
+    <%}%>
 </li>

@@ -213,7 +213,7 @@
 	opacity: 1;
 }
 
-.refreshNu{
+.refreshNu,.endIco{
 	position: absolute;
 	right: 30px;
 	top: 11px;
@@ -223,6 +223,33 @@
 	cursor: pointer;
 }
 
+.endIco{
+	width: 20px;
+	right: 28px;
+	cursor: default;
+}
+
 .refreshNu:hover{
 	opacity: 1;
+}
+
+
+
+
+.searchBackDialog .dialogInner{
+	min-height: inherit;
+}
+
+.searchBackDialog .dialog{
+	padding:10px 0;
+}
+
+.lastRefreshTime {
+	text-align: right;
+	font-size: 12px;
+	color: #8D7070;
+}
+
+.showOrderDetail .lastRefreshTime{
+	display: none;
 }

@@ -46,13 +46,18 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 			var localData = local.getAll();
 
 			for(var i=0;i<localData.length;i++){
-				this.searchBack(localData[i]['data']);
+				this.searchBack(localData[i]['data'],1);
+
+				if(((localData[i]['time']+15*60*1000)<new Date().getTime()) && !parseInt(localData[i]['data']['ischeck'])){
+					setTimeout((function(a){
+						return function(){
+							var idEL = $('#nu_'+a['nu'].toString()+'_'+a['com']);
+							$(idEL).children('.refreshNu').eq(0).trigger('click');
+						}
+					}(localData[i]['data'])),500)
+				}
 			}
 
-			var refreseNuEL = this['refreshNu_rel']();
-			for(i=0;i<refreseNuEL.length;i++){
-				refreseNuEL.eq(i).trigger('click');
-			}
 		},
 
 		addNu: function () {
@@ -239,44 +244,66 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 			com.storage.local.set('lastNuAndCompany',JSON.stringify([nu,companyName]));
 		},
 
-		searchQuery:function(companyName,nu,refreshEL){
+		searchQuery:function(companyName,nu){
 			var self = this;
 			data.search(companyName,nu,function(result){
-				self.searchBack(result,refreshEL);
-
-				if(self._addNuPannel){
+				if(self.searchBack(result) && self._addNuPannel){
 					self._addNuPannel.remove();
 				}
 			});
 		},
 
-		searchBack:function(result,refreshEL){
+		searchBack:function(result,isLocal){
 
-			if(result['status']===403){
-				com.alert(result['message']);
+			if(result['status']!=='200'){
+				com.alert({msg:result['message'],className:'searchBackDialog'});
 				return false;
 			}
 
 
 			if(result['data'] && result['data'].length){
 
+				var tempA = local.getById(result['nu']);
+
 				result['comDetail'] = this.getCompanyByEnName(result['com']);
+
+				if(tempA && isLocal){
+					var b =parseInt((new Date().getTime() - parseInt(tempA['time']))/60000);
+					if(b<1){
+						result['timeStr'] = '刚刚更新';
+					}else{
+						result['timeStr'] = ''+ b.toString()+'分钟前更新';
+					}
+
+				}else{
+					result['timeStr'] = '刚刚更新';
+				}
+
 				var html = com.getRender('tpl/nuList',result);
 
-				if(refreshEL){
-					refreshEL.html($(html).children());
+				var idEL = $('#nu_'+result['nu'].toString()+'_'+result['com']);
+
+				if(result['nu'] && idEL && idEL.length){
+					idEL.html($(html).children());
 				}else{
-					this['orderContainer_rel']().append(html);
+					this['orderContainer_rel']().prepend(html);
 				}
 
 				var time = new Date().getTime();
 
-				if(local.getById(result['nu'])){
-					local.updateById(result['nu'],{id:result['nu'],data:result,time:time});
+				if(tempA){
+					if(isLocal){
+						time = tempA['time'];
+					}
+					local.updateById(result['nu'],{id:result['nu'],data:result,time:time,createTime:tempA['createTime']});
 				}else{
 					local.add({id:result['nu'],data:result,time:time,createTime:time});
 				}
+			}else{
+
 			}
+
+			return true;
 		},
 
 		showOrderInfo:function(obj){
@@ -326,7 +353,6 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 		},
 
 		refreshNu:function(obj){
-			console.log(obj);
 			this._refreshNu = true;
 
 			obj = $(obj).parent();
@@ -336,10 +362,14 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 				ischeck = localData['data']['ischeck'],
 				companyName = localData['data']['com'];
 
+			if(localData['time'] && (parseInt(localData['time'])+60*1000)>new Date().getTime()){
+				return false;
+			}
+
 			if(parseInt(ischeck)){
 				return false;
 			}else{
-				this.searchQuery(companyName,nu,obj);
+				this.searchQuery(companyName,nu);
 			}
 
 		},

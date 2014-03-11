@@ -42,6 +42,8 @@ define(function () {
 				success:function(result){
 					if(result && callback){
 						callback(result);
+					}else{
+						com.alert({msg:'网络错误，请待会再试。'})
 					}
 				}
 			})

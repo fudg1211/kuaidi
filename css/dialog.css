@@ -71,6 +71,7 @@
 
 .dialog .tipImg {
 	margin-top: -5px;
+	width: 21px;
 }
 
 .loading .dialog{
@@ -79,4 +80,5 @@
 
 .loading{
 	background: url(../images/loading.gif)  no-repeat center center rgba(0,0,0,0.1);
+	z-index: 111111111;
 }

@@ -15,16 +15,18 @@ define(['common', './global/data'], function (com, data) {
 			if(localData){
 				localData = JSON.parse(localData);
 
-				var sortData = function(a,b){
-					return b['createTime']-a['createTime'];
+				var sortData = function(b,a){
+					return a['createTime']-b['createTime'];
 				};
 
-				var sortDataA = function(a,b){
-					return parseInt(a['data']['ischeck'])-parseInt(b['data']['ischeck']);
+				var sortDataA = function(b,a){
+					return (parseInt(a['data']['ischeck'])-parseInt(b['data']['ischeck']));
 				};
 
 				localData.sort(sortData);
-				return localData.sort(sortDataA);
+
+				localData.sort(sortDataA);
+				return localData;
 			}else{
 				return false;
 			}
@@ -45,7 +47,7 @@ define(['common', './global/data'], function (com, data) {
 			if(!this.getById(result['id'])){
 				var localData = this.getAll();
 
-				if(!localData){
+				if(!localData || !localData.length){
 					localData = [];
 				}
 				localData.push(result);

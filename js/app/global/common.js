@@ -119,7 +119,13 @@ define(['configs', 'storage',  'hack', 'regular'], function (configs, storage, h
 				config.url = config.url || 'tpl/alert';
 			}
 
-			config.className='alertDialog';
+			if(config.className){
+				config.className += ' alertDialog';
+			}else{
+				config.className='alertDialog';
+			}
+
+
 
 			return this.dialog(config)
 		},
@@ -129,7 +135,9 @@ define(['configs', 'storage',  'hack', 'regular'], function (configs, storage, h
 				com.dialog({className:'loading'});
 			},
 			hide: function () {
-				$('.loading').remove();
+				setTimeout(function(){
+					$('.loading').remove();
+				},300);
 			}
 		},
 
@@ -154,9 +162,7 @@ define(['configs', 'storage',  'hack', 'regular'], function (configs, storage, h
 					initData.onDataError=true;
 				},
 				complete: function (result) {
-					setTimeout(function(){
-						self.loading.hide();
-					},100)
+					self.loading.hide();
 				}
 			};
 
