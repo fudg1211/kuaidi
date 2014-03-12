@@ -5,21 +5,21 @@
 		"page": "background.html"
 	},
 
+	"name": "米粒快递查询",
+	"description": "申通快递，圆通快递，中通快递，顺风快递，韵达快递...精准查询",
+	"version": "1.0.0",
 
-	"name": "HTML5高清二维码生成器",
-	"description": "url，中文短信，文字、电话号码...一秒 到手机，精准简洁易用的二维码生成器，提供离线生成功能，使用方便，欢迎使用,新版有重大功能更新，提供放大和离线下载功能",
-	"version": "3.1.0",
-
-	"permissions": [ "tabs", "http://*/*", "https://*/*", "contextMenus"],
-
+	"permissions": [ "tabs", "http://*/*", "https://*/*", "contextMenus","storage", "notifications", "alarms"],
 
 	"browser_action": {
 		"default_icon": "images/icons/icon-48.png",
 		"default_popup": "popup.html",
-		"default_title": "html5高清二维码生成器"
+		"default_title": "米粒快递查询"
 	},
 
 	"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+
+	"update_url": "https://clients2.google.com/service/update2/crx",
 
 	"icons": {
 		"16": "images/icons/icon-16.png",

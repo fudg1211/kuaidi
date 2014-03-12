@@ -1,7 +1,7 @@
 /**
  * Created by fudongguang on 14-3-8.
  */
-define(['common', './global/data'], function (com, data) {
+define(['./global/common', './global/data'], function (com, data) {
 
 	/*
 	* 保存的数据格式为

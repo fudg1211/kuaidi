@@ -1,0 +1,20 @@
+<div>
+    <div class="header">
+        <div class="appTitle center">设置常用快递公司</div>
+    </div>
+    <div class="inputTag">
+        <div></div>
+        <div class="companyContainer spacing">
+            <ul>
+                <%for(var i=0;i<md['data'].length;i++){%>
+                <li id="<%=md['data'][i][0]%>" class="selecteCompanys <%if(md['data'][i][4]){%>companysSelected<%}%> "><%=md['data'][i][2]%></li>
+                <%}%>
+            </ul>
+        </div>
+        <div class="spacing">
+            <button class="m-button orangeButton" id="saveSetCompanys">保 存</button>
+        </div>
+        <div class="spacing" style="margin-top: 5px;"></div>
+    </div>
+    <a href="#" class="dialogClose J-dialogClose"></a>
+</div>

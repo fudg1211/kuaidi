@@ -5,7 +5,7 @@
  * Time: 下午3:46
  * 通用函数.
  */
-define(['configs', 'storage',  'hack', 'regular'], function (configs, storage, hack,regular) {
+define(['./configs', './storage',  './hack', './regular'], function (configs, storage, hack,regular) {
 	var toString = {}.toString,
 		$ = window.$,
 		UA = window.navigator.userAgent;
@@ -60,6 +60,16 @@ define(['configs', 'storage',  'hack', 'regular'], function (configs, storage, h
 
 		isJson:function(it){
 			return /^[\{\[].*[\}\]]$/.test(it);
+		},
+
+		testSpeed:function(name){
+			var time = new Date().getTime();
+
+			if(this._timeNode){
+				console.log(name+':' +(time - this._timeNode));
+			}
+
+			this._timeNode = new Date().getTime();
 		},
 
 		/**
@@ -132,7 +142,9 @@ define(['configs', 'storage',  'hack', 'regular'], function (configs, storage, h
 
 		loading: {
 			show: function () {
-				com.dialog({className:'loading'});
+				com.testSpeed('n');
+				var str='<div class="loading"></div>';
+				$('body').append(str);
 			},
 			hide: function () {
 				setTimeout(function(){

@@ -1,0 +1,35 @@
+<li id="nu_<%=md['nu']%>_<%=md['com']%>" nu="<%=md['nu']%>" class="orderInfo" >
+    <div>
+        <span class="orderNu">[<%=md['comDetail'][2]%>] 单号：<span style="color: red;"><%=md['nu']%></span>
+            <%if(!parseInt(md['ischeck'])){%>
+            <%}%>
+        </span>
+    </div>
+
+    <div style="line-height: 22px;margin-top: 5px;">
+        <div class="orderNewestState box">
+            <div class="orange">最新状态：</div>
+            <div class="boxFlex"><%=md['data'][0]['context']%></div>
+        </div>
+        <div class="boxFlex orderDescDetailContainer">
+            <%for(var i=0;i<md['data'].length;i++){%>
+            <div class="box orderDetail">
+                <div class="orderDescTime"><%=md['data'][i]['time']%></div>
+                <div class="boxFlex"><%=md['data'][i]['context']%></div>
+            </div>
+            <%}%>
+            <div class="jiantou"></div>
+        </div>
+    </div>
+
+    <%if(!parseInt(md['ischeck'])){%>
+        <div class="lastRefreshTime">上次更新时间：<%=md['timeStr']%></div>
+    <%}%>
+
+    <img src="images/del.png" class="delNu"/>
+    <%if(!parseInt(md['ischeck'])){%>
+    <img src="images/refresh.png" class="refreshNu"/>
+    <%}else{%>
+    <img src="images/end.png" class="endIco"/>
+    <%}%>
+</li>

@@ -5,7 +5,7 @@
  * Time: AM10:48
  * To change this template use File | Settings | File Templates.
  */
-define(['common', './global/data','./localData'], function (com, data, local) {
+define(['./global/common', './global/data', './localData'], function (com, data, local) {
 	var Index = FishMVC.View.extend({
 		init: function () {
 			this.autoRefreshData();
@@ -17,16 +17,16 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 			'.selecteCompanys': 'selecteCompanys_rel',
 			'.companysSelected': 'companysSelected_rel',
 			'#saveSetCompanys': 'saveSetCompanys_rel',
-			'.company':'company_rel',
-			'#companySelected':'companySelected_rel',
-			'#search':'search_rel',
-			'#addInput':'addInput_rel',
-			'.orderInfo':'orderInfo_rel',
-			'.showOrderDetail':'showOrderDetail_rel',
-			'.delNu':'delNu_rel',
-			'.orderDescDetailContainer':'orderDescDetailContainer_rel',
-			'#orderContainer':'orderContainer_rel',
-			'.refreshNu':'refreshNu_rel'
+			'.company': 'company_rel',
+			'#companySelected': 'companySelected_rel',
+			'#search': 'search_rel',
+			'#addInput': 'addInput_rel',
+			'.orderInfo': 'orderInfo_rel',
+			'.showOrderDetail': 'showOrderDetail_rel',
+			'.delNu': 'delNu_rel',
+			'.orderDescDetailContainer': 'orderDescDetailContainer_rel',
+			'#orderContainer': 'orderContainer_rel',
+			'.refreshNu': 'refreshNu_rel'
 		},
 
 		events: {
@@ -34,29 +34,32 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 			'click setIco_rel': 'setCompany',
 			'click selecteCompanys_rel': 'selecteCompanys',
 			'click saveSetCompanys_rel': 'saveSetCompanys',
-			'click company_rel':'selectCompany',
-			'click search_rel':'search',
-			'click orderInfo_rel':'showOrderInfo',
-			'click delNu_rel':'delNu',
-			'click orderDescDetailContainer_rel':'orderDescDetailContainer',
-			'click refreshNu_rel':'refreshNu'
+			'click company_rel': 'selectCompany',
+			'click search_rel': 'search',
+			'click orderInfo_rel': 'showOrderInfo',
+			'click delNu_rel': 'delNu',
+			'click orderDescDetailContainer_rel': 'orderDescDetailContainer',
+			'click refreshNu_rel': 'refreshNu'
 		},
 
-		autoRefreshData:function(){
+		autoRefreshData: function () {
 			var localData = local.getAll();
 
-			for(var i=0;i<localData.length;i++){
-				this.searchBack(localData[i]['data'],1);
-
-				if(((localData[i]['time']+15*60*1000)<new Date().getTime()) && !parseInt(localData[i]['data']['ischeck'])){
-					setTimeout((function(a){
-						return function(){
-							var idEL = $('#nu_'+a['nu'].toString()+'_'+a['com']);
-							$(idEL).children('.refreshNu').eq(0).trigger('click');
-						}
-					}(localData[i]['data'])),500)
-				}
+			for (var i = 0; i < localData.length; i++) {
+				this.searchBack(localData[i]['data'], 1);
 			}
+
+			var a, self = this;
+
+			setTimeout(function () {
+				for (i = 0; i < localData.length; i++) {
+					a = localData[i]['data'];
+					if (parseInt(a['ischeck']) || (localData[i]['time'] + 15 * 60 * 1000) > new Date().getTime()) {
+						continue;
+					}
+					self.searchQuery(a['com'], a['nu'], 1);
+				}
+			}, 100)
 
 		},
 
@@ -64,7 +67,7 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 			var md = com.clon(data.getGuoneiCompany());
 			var localData = com.storage.local.get('localCompanys');
 			var result = [];
-			var lastNuAndCompany = JSON.parse(com.storage.local.get('lastNuAndCompany')) || ['',false];
+			var lastNuAndCompany = JSON.parse(com.storage.local.get('lastNuAndCompany')) || ['', false];
 
 
 			if (localData) {
@@ -80,12 +83,11 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 				}
 			}
 
-			for(i=0;i<result.length;i++){
-				if(result[i][1]===lastNuAndCompany[1]){
-					result[i][5]='companySelected';
+			for (i = 0; i < result.length; i++) {
+				if (result[i][1] === lastNuAndCompany[1]) {
+					result[i][5] = 'companySelected';
 				}
 			}
-
 
 
 			var config = {
@@ -94,8 +96,8 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 				funs: [function () {
 
 				}],
-				data:result,
-				last:lastNuAndCompany
+				data: result,
+				last: lastNuAndCompany
 			};
 
 
@@ -120,7 +122,7 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 		},
 
 
-		getCompanyByEnName:function(name){
+		getCompanyByEnName: function (name) {
 			var md = data.getGuoneiCompany(), result;
 			for (var i = 0; i < md.length; i++) {
 				if (md[i][1] === name) {
@@ -168,7 +170,7 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 				data: md
 			};
 
-			this._setCompanyPannel=com.dialog(config);
+			this._setCompanyPannel = com.dialog(config);
 		},
 
 		selecteCompanys: function (obj) {
@@ -196,21 +198,21 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 			com.storage.local.set('localCompanys', JSON.stringify(result));
 
 			this._setCompanyPannel.remove();
-			this._setCompanyPannel=null;
+			this._setCompanyPannel = null;
 
 			this._addNuPannel.remove();
-			this._addNuPannel=null;
+			this._addNuPannel = null;
 
 			this.addNu();
 		},
 
-		selectCompany:function(obj){
+		selectCompany: function (obj) {
 			obj = $(obj);
-			$('.companySelected').removeClass('companySelected').removeAttr('id','companySelected');
-			obj.addClass('companySelected').attr('id','companySelected');
+			$('.companySelected').removeClass('companySelected').removeAttr('id', 'companySelected');
+			obj.addClass('companySelected').attr('id', 'companySelected');
 		},
 
-		search:function(){
+		search: function () {
 			var obj = this['companySelected_rel'](),
 				objA = this['addInput_rel'](),
 				companyId = obj.attr('companyId'),
@@ -219,103 +221,116 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 				nu = objA.val();
 
 
-			if(!nu){
-				objA.attr('placeholder','请输入运单号').focus();
+			if (!nu) {
+				objA.attr('placeholder', '请输入运单号').focus();
 				return false;
 			}
 
-			if(!companyId){
-				com.alert({msg:'请选择快递公司'});
+			if (!companyId) {
+				com.alert({msg: '请选择快递公司'});
 			}
 
 			var company = this.getCompanyById(companyId);
 
-			if(company && company.length){
+			if (company && company.length) {
 				companyName = company[1];
 			}
 
-			if(local.checkByIdAndCom(nu,companyName)){
-				com.alert({msg:'已经有该运单'});
+			if (local.checkByIdAndCom(nu, companyName)) {
+				com.alert({msg: '已经有该运单'});
 				return;
 			}
 
-			this.searchQuery(companyName,nu);
+			this.searchQuery(companyName, nu);
 
-			com.storage.local.set('lastNuAndCompany',JSON.stringify([nu,companyName]));
+			com.storage.local.set('lastNuAndCompany', JSON.stringify([nu, companyName]));
 		},
 
-		searchQuery:function(companyName,nu){
+		searchQuery: function (companyName, nu, isLocal) {
 			var self = this;
-			data.search(companyName,nu,function(result){
-				if(self.searchBack(result) && self._addNuPannel){
+			com.testSpeed('a1');
+			data.search(companyName, nu, function (result) {
+				if (!result['nu']) {
+					result['nu'] = nu;
+				}
+
+				if (self.searchBack(result, isLocal) && self._addNuPannel) {
 					self._addNuPannel.remove();
 				}
 			});
 		},
 
-		searchBack:function(result,isLocal){
+		searchBack: function (result, isLocal) {
 
-			if(result['status']!=='200'){
-				com.alert({msg:result['message'],className:'searchBackDialog'});
-				return false;
+			var tempA = local.getById(result['nu']);
+
+			if (tempA && tempA.length) {
+
+				if (!result['data']) {
+					result = com.clon(tempA['data']);
+				}
+
+			} else {
+				//如果是手工加载
+				if (result['status'] !== '200' && result['status'] !== '400') {
+					com.alert({msg: result['message'], className: 'searchBackDialog'});
+					return false;
+				}
+
+				if (result['status'] === '400' && !isLocal) {
+					com.alert({msg: '暂无该单号最新信息，请稍后再试！', className: 'searchBackDialog'});
+					return false;
+				}
 			}
 
+			result['comDetail'] = this.getCompanyByEnName(result['com']);
 
-			if(result['data'] && result['data'].length){
-
-				var tempA = local.getById(result['nu']);
-
-				result['comDetail'] = this.getCompanyByEnName(result['com']);
-
-				if(tempA && isLocal){
-					var b =parseInt((new Date().getTime() - parseInt(tempA['time']))/60000);
-					if(b<1){
-						result['timeStr'] = '刚刚更新';
-					}else{
-						result['timeStr'] = ''+ b.toString()+'分钟前更新';
-					}
-
-				}else{
+			if (tempA && isLocal) {
+				var b = parseInt((new Date().getTime() - parseInt(tempA['time'])) / 60000);
+				if (b < 1) {
 					result['timeStr'] = '刚刚更新';
+				} else {
+					result['timeStr'] = '' + b.toString() + '分钟前';
 				}
 
-				var html = com.getRender('tpl/nuList',result);
+			} else {
+				result['timeStr'] = '刚刚更新';
+			}
 
-				var idEL = $('#nu_'+result['nu'].toString()+'_'+result['com']);
+			var html = com.getRender('tpl/nuList', result);
 
-				if(result['nu'] && idEL && idEL.length){
-					idEL.html($(html).children());
-				}else{
-					this['orderContainer_rel']().prepend(html);
+			var idEL = $('#nu_' + result['nu'].toString() + '_' + result['com']);
+
+			if (result['nu'] && idEL && idEL.length) {
+				idEL.html($(html).children());
+			} else {
+				this['orderContainer_rel']().prepend(html);
+			}
+
+			var time = new Date().getTime();
+
+			if (tempA) {
+				if (isLocal) {
+					time = tempA['time'];
 				}
-
-				var time = new Date().getTime();
-
-				if(tempA){
-					if(isLocal){
-						time = tempA['time'];
-					}
-					local.updateById(result['nu'],{id:result['nu'],data:result,time:time,createTime:tempA['createTime']});
-				}else{
-					local.add({id:result['nu'],data:result,time:time,createTime:time});
-				}
-			}else{
-
+				local.updateById(result['nu'], {id: result['nu'], data: result, time: time, createTime: tempA['createTime']});
+			} else {
+				local.add({id: result['nu'], data: result, time: time, createTime: time});
 			}
 
 			return true;
 		},
 
-		showOrderInfo:function(obj){
+		showOrderInfo: function (obj) {
 
 			var self = this;
-			setTimeout(function(){
-				if(self._delNu || self._orderDescDetailContainer || self._refreshNu){
-					setTimeout(function(){
-						self._delNu=false;
-						self._refreshNu=false;
+			setTimeout(function () {
+				if (self._delNu || self._orderDescDetailContainer || self._refreshNu) {
+					setTimeout(function () {
+						self._delNu = false;
+						self._refreshNu = false;
 						self._orderDescDetailContainer = false;
-					},100);
+					}, 100);
 					return false;
 				}
 
@@ -323,19 +338,22 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 				var a = obj.hasClass('showOrderDetail');
 
 				self['showOrderDetail_rel']().removeClass('showOrderDetail');
-				if(!a){
+				if (!a) {
 					obj.addClass('showOrderDetail');
 				}
-			},10);
+			}, 10);
 		},
 
-		delNu:function(obj){
+		delNu: function (obj) {
 			var self = this;
 			this._delNu = true;
-			var config={
-				msg:'确定要删除吗？',
-				buttons: [['确定','J-dialogClose'],['取消','J-dialogClose']],
-				funs:[function(){
+			var config = {
+				msg: '确定要删除吗？',
+				buttons: [
+					['确定', 'J-dialogClose'],
+					['取消', 'J-dialogClose']
+				],
+				funs: [function () {
 					self.delSubmit(obj);
 				}]
 			};
@@ -344,37 +362,40 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 			return false;
 		},
 
-		delSubmit:function(obj){
+		delSubmit: function (obj) {
 			obj = $(obj).parent();
 			var nu = obj.attr('nu');
-			if(local.delById(nu)){
+			if (local.delById(nu)) {
 				obj.remove();
 			}
 		},
 
-		refreshNu:function(obj){
+		refreshNu: function (obj) {
 			this._refreshNu = true;
+			com.testSpeed('1');
 
 			obj = $(obj).parent();
-			var	nu = obj.attr('nu');
+			var nu = obj.attr('nu');
 
 			var localData = local.getById(nu),
 				ischeck = localData['data']['ischeck'],
 				companyName = localData['data']['com'];
 
-			if(localData['time'] && (parseInt(localData['time'])+60*1000)>new Date().getTime()){
+			if (localData['time'] && (parseInt(localData['time']) + 60 * 1000) > new Date().getTime()) {
 				return false;
 			}
 
-			if(parseInt(ischeck)){
+			com.testSpeed('a');
+
+			if (parseInt(ischeck)) {
 				return false;
-			}else{
-				this.searchQuery(companyName,nu);
+			} else {
+				this.searchQuery(companyName, nu);
 			}
 
 		},
 
-		orderDescDetailContainer:function(){
+		orderDescDetailContainer: function () {
 			this._orderDescDetailContainer = true;
 			return false;
 		}
@@ -388,7 +409,7 @@ define(['common', './global/data','./localData'], function (com, data, local) {
 	var M_index = FishMVC.Module.extend();
 	var mIndex = new M_index();
 
-	mIndex.on('change:localData',function(){
+	mIndex.on('change:localData', function () {
 
 	})
 
