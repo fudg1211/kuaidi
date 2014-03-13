@@ -165,7 +165,7 @@ define(['./configs', './storage',  './hack', './regular'], function (configs, st
 				type: 'POST',
 				dataType: 'json',
 				url: self.configs.host,
-				async:false,
+				async:true,
 				data: '',
 				success: function (result) {
 				},

@@ -46,7 +46,7 @@ define(['./global/common', './global/data', './localData'], function (com, data,
 			var localData = local.getAll();
 
 			for (var i = 0; i < localData.length; i++) {
-				this.searchBack(localData[i]['data'], 1);
+				this.searchBack(localData[i]['data'],localData[i]['data']['nu'], 1);
 			}
 
 			var a, self = this;
@@ -228,6 +228,7 @@ define(['./global/common', './global/data', './localData'], function (com, data,
 
 			if (!companyId) {
 				com.alert({msg: '请选择快递公司'});
+				return false;
 			}
 
 			var company = this.getCompanyById(companyId);
@@ -246,7 +247,7 @@ define(['./global/common', './global/data', './localData'], function (com, data,
 			com.storage.local.set('lastNuAndCompany', JSON.stringify([nu, companyName]));
 		},
 
-		searchQuery: function (companyName, nu, isLocal) {
+		searchQuery: function (companyName, nu, isAuto) {
 			var self = this;
 			com.testSpeed('a1');
 			data.search(companyName, nu, function (result) {
@@ -254,38 +255,48 @@ define(['./global/common', './global/data', './localData'], function (com, data,
 					result['nu'] = nu;
 				}
 
-				if (self.searchBack(result, isLocal) && self._addNuPannel) {
+				if (self.searchBack(result,nu,0,isAuto) && self._addNuPannel) {
 					self._addNuPannel.remove();
 				}
 			});
 		},
 
-		searchBack: function (result, isLocal) {
+		testModule:function(error){
 
-			var tempA = local.getById(result['nu']);
+			var result={};
+			result['status']='201';
+			result['message']='查找不到数据';
 
-			if (tempA && tempA.length) {
+			if(error===500){
+				result = {"status":"500","message":"服务器错误"};
+			}
 
-				if (!result['data']) {
-					result = com.clon(tempA['data']);
-				}
+			return result;
+		},
 
-			} else {
-				//如果是手工加载
-				if (result['status'] !== '200' && result['status'] !== '400') {
+
+		searchBack: function (result,nu, isLocal, isAuto) {
+			var isAdd=false;
+
+
+			var tempA = local.getById(nu),
+				renderArray;
+
+			if(!tempA){
+				isAdd=true;
+			}
+
+
+			if(isAdd && result['status'] !== '200' && !isAuto && !isLocal){
 					com.alert({msg: result['message'], className: 'searchBackDialog'});
 					return false;
-				}
-
-				if (result['status'] === '400' && !isLocal) {
-					com.alert({msg: '暂无该单号最新信息，请稍后再试！', className: 'searchBackDialog'});
-					return false;
-				}
 			}
+
 
 			result['comDetail'] = this.getCompanyByEnName(result['com']);
 
-			if (tempA && isLocal) {
+			if(isLocal){
+
 				var b = parseInt((new Date().getTime() - parseInt(tempA['time'])) / 60000);
 				if (b < 1) {
 					result['timeStr'] = '刚刚更新';
@@ -293,13 +304,22 @@ define(['./global/common', './global/data', './localData'], function (com, data,
 					result['timeStr'] = '' + b.toString() + '分钟前';
 				}
 
-			} else {
+				renderArray = result;
+			}else{
+
+				if(result['status']!=='200'){
+					result={"message": "ok", "nu": nu, "ischeck": "0", "com": tempA['data']['com'], "status": "200", "condition": "F00", "data": tempA['data']['data'], "state": "3"};
+					result['comDetail'] = this.getCompanyByEnName(tempA['data']['com']);
+
+					//{"message":"ok","nu":"7472853546","ischeck":"1","com":"yuantong","updatetime":"2014-03-12 13:46:54","status":"200","condition":"F00","data":[{"time":"2014-03-10 12:56:27","context":"浙江省杭州市文三路公司 已签收 操作员：周春泷","ftime":"2014-03-10 12:56:27"},{"time":"2014-03-10 08:25:52","context":"浙江省杭州市文三路公司 派件中 操作员：朱苡仙","ftime":"2014-03-10 08:25:52"},{"time":"2014-03-10 06:45:55","context":"浙江省杭州市文三路公司 已收入 操作员：凌进","ftime":"2014-03-10 06:45:55"},{"time":"2014-03-10 01:52:54","context":"杭州转运中心公司 已发出 操作员：候卫兵","ftime":"2014-03-10 01:52:54"},{"time":"2014-03-10 00:55:14","context":"杭州转运中心公司 已收入 操作员：侯亚锋","ftime":"2014-03-10 00:55:14"},{"time":"2014-03-10 00:47:54","context":"杭州转运中心公司 已收入 操作员：张耀天","ftime":"2014-03-10 00:47:54"},{"time":"2014-03-09 02:22:42","context":"深圳转运中心公司 已发出 操作员：杨学健","ftime":"2014-03-09 02:22:42"},{"time":"2014-03-09 00:06:57","context":"深圳转运中心公司 已打包 操作员：范丽雪","ftime":"2014-03-09 00:06:57"},{"time":"2014-03-08 23:41:27","context":"深圳转运中心公司 已收入 操作员：张再勇","ftime":"2014-03-08 23:41:27"},{"time":"2014-03-08 21:12:11","context":"广东省深圳市宝安区龙华公司 已收件 操作员：梅瑜","ftime":"2014-03-08 21:12:11"}],"state":"3","comDetail":["a02","yuantong","圆通快递",0,false,false],"timeStr":"2698分钟前"}"
+				}
+
 				result['timeStr'] = '刚刚更新';
+				renderArray = result;
 			}
 
-			var html = com.getRender('tpl/nuList', result);
-
-			var idEL = $('#nu_' + result['nu'].toString() + '_' + result['com']);
+			var html = com.getRender('tpl/nuList', renderArray),
+				idEL = $('#nu_' + result['nu'].toString() + '_' + result['com']);
 
 			if (result['nu'] && idEL && idEL.length) {
 				idEL.html($(html).children());
@@ -307,19 +327,27 @@ define(['./global/common', './global/data', './localData'], function (com, data,
 				this['orderContainer_rel']().prepend(html);
 			}
 
-			var time = new Date().getTime();
 
-			if (tempA) {
-				if (isLocal) {
-					time = tempA['time'];
+			if(!isLocal){
+				var time = new Date().getTime();
+
+				if (tempA) {
+					local.updateById(result['nu'], {id: result['nu'], data: result, time: time, createTime: tempA['createTime']});
+				} else {
+					local.add({id: result['nu'], data: result, time: time, createTime: time});
 				}
-				local.updateById(result['nu'], {id: result['nu'], data: result, time: time, createTime: tempA['createTime']});
-			} else {
-				local.add({id: result['nu'], data: result, time: time, createTime: time});
 			}
 
 			return true;
 		},
+
+
+		fixError:function(result){
+			var a = {"message": "ok", "nu": "7472853546", "ischeck": "1", "com": "yuantong", "updatetime": "2014-03-12 13:46:54", "status": "200", "condition": "F00", "data": [
+				{"time": "2014-03-08 21:12:11", "context": "广东省深圳市宝安区龙华公司 已收件 操作员：梅瑜", "ftime": "2014-03-08 21:12:11"}
+			], "state": "3", "comDetail": ["a02", "yuantong", "圆通快递", 0, false, false], "timeStr": "2698分钟前"};
+		},
+
 
 		showOrderInfo: function (obj) {
 

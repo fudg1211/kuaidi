@@ -15,7 +15,7 @@ define(['./global/common', './global/data'], function (com, data) {
 			if(localData){
 				localData = JSON.parse(localData);
 
-				var sortData = function(b,a){
+				var sortData = function(a,b){
 					return a['createTime']-b['createTime'];
 				};
 
