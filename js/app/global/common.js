@@ -5,7 +5,7 @@
  * Time: 下午3:46
  * 通用函数.
  */
-define(['./configs', './storage',  './hack', './regular'], function (configs, storage, hack,regular) {
+define(['./configs', './storage',  './hack', './regular','./tpl'], function (configs, storage, hack,regular,Tpl) {
 	var toString = {}.toString,
 		$ = window.$,
 		UA = window.navigator.userAgent;
@@ -72,6 +72,8 @@ define(['./configs', './storage',  './hack', './regular'], function (configs, st
 			this._timeNode = new Date().getTime();
 		},
 
+		Tpl:Tpl,
+
 		/**
 		 * 获取数据类型 小写
 		 * @param it
@@ -108,13 +110,23 @@ define(['./configs', './storage',  './hack', './regular'], function (configs, st
 		},
 
 		getRender: function (url, config) {
-			return new EJS({url: url}).render({md: config})
+
+			var newUrl = url.replace('/','');
+			if(Tpl[newUrl]){
+				return Tpl[newUrl](config);
+			}else{
+				console.log(newUrl);
+				var a;
+				a=new EJS({url: url});
+				console.log(a.template.out);
+			}
 		},
 
 		dialog:function(config){
 			if(!config.content){
 				var url = config.url || 'tpl/dialog';
 				delete config.url;
+
 				config.content = this.getRender(url,config);
 			}
 			return dialog(config);
@@ -147,9 +159,7 @@ define(['./configs', './storage',  './hack', './regular'], function (configs, st
 				$('body').append(str);
 			},
 			hide: function () {
-				setTimeout(function(){
-					$('.loading').remove();
-				},300);
+				$('.loading').remove();
 			}
 		},
 

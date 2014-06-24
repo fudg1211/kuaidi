@@ -41,7 +41,7 @@
         </antcall>
 
         <antcall target="zip">
-            <param name="build.name" value="useragent-2"/>
+            <param name="build.name" value="kuaidi"/>
         </antcall>
     </target>
 
@@ -49,7 +49,7 @@
     <target name="zip">
         <delete dir="${dir.zip}"/>
         <mkdir dir="${dir.zip}"/>
-        <zip basedir="${dir.output}" destfile="${dir.zip}/${build.name}.zip"/>
+        <zip basedir="${dir.output}" destfile="${dir.zip}/kuaidi.zip"/>
     </target>
 
 

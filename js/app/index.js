@@ -103,6 +103,17 @@ define(['./global/common', './global/data', './localData'], function (com, data,
 
 			this._addNuPannel = com.dialog(config);
 
+
+			var companySelected = $('#companySelected'),
+				companyFirst = $('.company:first-child');
+
+			if(!companyFirst || !companyFirst.length){
+				this['setIco_rel']().addClass('setIco_tip');
+			}
+
+			if((!companySelected || !companySelected.length) && companyFirst){
+				companyFirst.trigger('click');
+			}
 		},
 
 		getCompanyById: function (id) {
